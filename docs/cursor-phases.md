@@ -681,12 +681,67 @@ ANIMATIONS TO ADD:
 Use CSS transitions and keyframes. Keep animations performant (transform, opacity only).
 Add prefers-reduced-motion media query to disable for accessibility.
 ```
+## Phase 16:
 
+Implement an optional, non-blocking AI enhancement layer that adds lip-synced avatar videos to the existing TTS workflow using the MiniMax API.
+
+INSTALL/SETUP:
+- Add MiniMax credentials to .env.local (API_KEY, URL, AVATAR_STYLE)
+- Execute SQL schema updates for `avatar_cache` table and `user_sessions` column
+
+BACKEND & API ROUTES:
+
+1. Database Schema (Neon/Postgres):
+   - Create `avatar_cache` table with SHA-256 text hashing for aggressive caching.
+   - Add `avatar_enabled` boolean to `user_sessions`.
+   - Index `text_hash` and `generation_status` for performance.
+
+2. /app/api/minimax/avatar/route.ts (POST & GET):
+   - POST: Handle generation requests. Check cache -> Return cached URL or initiate MiniMax task.
+   - GET: Handle polling for task status. Update cache on completion.
+   - Logic: Must be non-blocking; return `processing` status with `taskId` immediately.
+
+3. /app/api/minimax/toggle/route.ts:
+   - Endpoint to update user session avatar preferences.
+
+AI TOOLING:
+
+4. /ai/tools.ts - Update `elevenLabsSpeakWithAvatar`:
+   - Step 1: Generate ElevenLabs audio (Blocking/Required).
+   - Step 2: Trigger MiniMax generation (Async/Non-blocking) if enabled.
+   - Return: `audioUrl` immediately, with optional `taskId` for client-side polling.
+   - Error Handling: Fail silently on avatar errors; always ensure audio is returned.
+
+COMPONENTS:
+
+5. /components/AvatarPlayer.tsx:
+   - Input: `audioUrl`, `avatarUrl`, `taskId`.
+   - State: "Audio Only", "Generating" (Spinner), "Video Ready".
+   - Logic: Poll `/api/minimax/avatar` if `taskId` is present.
+   - Fallback: Play audio immediately even while video is generating.
+
+6. /components/AvatarToggle.tsx:
+   - UI: Toggle button to switch avatar mode on/off for the session.
+
+INTEGRATION:
+
+7. System Prompt Update:
+   - Instruct AI that avatar generation is async and should never block the conversation flow.
+
+8. /app/page.tsx:
+   - Place `AvatarToggle` in header.
+   - Replace standard audio player with `AvatarPlayer`.
+
+CRITICAL REQUIREMENTS:
+- **Async Priority:** The 10-step workflow must NOT wait for video generation.
+- **Caching:** Never regenerate video for the exact same text string (use hash).
+- **Graceful Degradation:** If MiniMax fails or times out (30s), UI reverts to standard audio player.
 **Check**: Animations feel smooth, not janky. Test on mobile/iPad if possible.
 
 ---
+#PHASE 17 :
 
-## PHASE 16: Final Integration & Polish
+## PHASE 17: Final Integration & Polish
 
 ```
 Final integration to ensure everything works end-to-end.
