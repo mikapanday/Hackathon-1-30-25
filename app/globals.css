@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #1a1a1a;
+  --foreground: #ededed;
+  --min-tap-target: 44px;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Touch-friendly base styles - WCAG 2.5.5 Target Size */
+@layer base {
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"] {
+    min-height: var(--min-tap-target);
+    min-width: var(--min-tap-target);
+    padding: 0.75rem 1rem;
+  }
+
+  a {
+    min-height: var(--min-tap-target);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  textarea,
+  select {
+    min-height: var(--min-tap-target);
+    padding: 0.75rem;
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply px-4 py-2 rounded-lg transition-colors;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500;
+    min-height: var(--min-tap-target);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn {
+    @apply px-6 py-3 rounded-lg font-medium transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    min-height: var(--min-tap-target);
+  }
+
+  .btn-primary {
+    @apply btn bg-blue-600 text-white hover:bg-blue-700;
+    @apply focus:ring-blue-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-200 text-gray-900 hover:bg-gray-300;
+    @apply dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
+    @apply focus:ring-gray-500;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .touch-target {
+    min-height: var(--min-tap-target);
+    min-width: var(--min-tap-target);
+  }
+}

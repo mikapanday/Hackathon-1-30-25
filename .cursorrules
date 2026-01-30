@@ -1,0 +1,70 @@
+# Cursor Rules
+
+## No Hallucination
+- Never make up information, code, or file contents that haven't been verified
+- Always read and inspect files before making claims about their contents
+- If you don't know something, say so explicitly rather than guessing
+- Verify assumptions by checking the actual codebase
+
+## Ask Clarifying Questions
+- When requirements are ambiguous or unclear, ask for clarification before proceeding
+- If there are multiple valid interpretations of a request, present the options and ask which the user prefers
+- Don't assume intent - confirm understanding when uncertain
+- It's better to ask one good question than to build the wrong thing
+
+---
+
+# AAC Planning Assistant - Project Context
+
+## Tech Stack
+- Next.js 14 App Router (TypeScript)
+- Tailwind CSS (dark theme, #1a1a1a background)
+- Vercel AI SDK with Anthropic Claude
+- Neon Postgres for persistence
+- ElevenLabs for TTS
+
+## UI FLOW - CRITICAL REFERENCE
+
+The app uses a **step-by-step wizard flow** for sentence building:
+
+```
+Step 1: WHO      → I, You, We, They, Yes, No + [Custom word]
+Step 2: ACTION   → want, go, play, look, eat, get, stop, like + [Custom word]
+Step 3: OBJECT   → ball, toy, it, that, more, water + [Custom word]
+Step 4: LOCATION → here, there, outside, in, on, now, later + [Custom word]
+Step 5: MODIFIERS → more, again, big, fast, good, bad, happy, mad + [Custom word]
+```
+
+### Screen Layout (Every Step)
+- **Top**: "Formulating a sentence (loading icon)" + "Manual Chat" toggle (right)
+- **Middle**: "[Constructing Sentence here]" showing words selected so far
+- **Bottom**: Word grid for current step (2-3 columns) + Custom word input
+- **Footer**: Step label like "Agent (WHO)", "Action", "Patient-object", etc.
+
+### User Flow
+1. User taps a word from the grid
+2. Word is added to the sentence display
+3. Automatically advances to next step
+4. After MODIFIERS, show "Speak" button
+5. Tapping a word in the sentence lets user edit that step
+
+### Slot Types (TypeScript)
+```typescript
+type SlotType = "WHO" | "ACTION" | "OBJECT" | "LOCATION" | "MODIFIERS"
+```
+
+## Design Requirements
+- Dark theme (#1a1a1a background, white/light text)
+- Touch-friendly (minimum 44px tap targets, prefer 60px for word buttons)
+- Mobile-first, works on iPad
+- Animations from https://makeitanimated.dev/animations
+
+## Key Pages
+- `/` - Main wizard for sentence building
+- `/dashboard` - Word frequency, combinations, mastery forecast
+- `/fridge` - Celebration board with word magnets and achievement stickers
+
+## DO NOT
+- Show all slots at once (it's a wizard, one step at a time)
+- Auto-play TTS (only when user taps Speak)
+- Use light theme
